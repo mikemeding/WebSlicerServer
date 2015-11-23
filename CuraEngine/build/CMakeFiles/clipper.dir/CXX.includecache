@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mike/Documents/MastersWork/CuraEngine/libs/clipper/clipper.cpp
+clipper.hpp
+/home/mike/Documents/MastersWork/CuraEngine/libs/clipper/clipper.hpp
+cmath
+-
+vector
+-
+algorithm
+-
+stdexcept
+-
+cstring
+-
+cstdlib
+-
+ostream
+-
+functional
+-
+
+/home/mike/Documents/MastersWork/CuraEngine/libs/clipper/clipper.hpp
+vector
+-
+set
+-
+stdexcept
+-
+cstring
+-
+cstdlib
+-
+ostream
+-
+functional
+-
+

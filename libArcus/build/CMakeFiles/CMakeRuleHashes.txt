@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+eda14e792702f6987a681274f8e58ed0 examples/example.pb.cc
+f2a72cb5175cbd0dc0c38c69307bdbbd examples/example_pb2.py

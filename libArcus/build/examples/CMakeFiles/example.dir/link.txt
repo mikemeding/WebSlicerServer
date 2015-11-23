@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++11    CMakeFiles/example.dir/example.cpp.o CMakeFiles/example.dir/example.pb.cc.o  -o example -rdynamic ../libArcus.so.15.09.81 -lpthread /usr/local/lib/libprotobuf.so -Wl,-rpath,/home/mike/Documents/MastersWork/libArcus/build:/usr/local/lib 

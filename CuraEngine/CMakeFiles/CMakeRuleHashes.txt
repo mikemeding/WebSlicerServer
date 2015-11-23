@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+0f4bd5afe7e530b194468c2b5c379ca3 Cura.pb.cc

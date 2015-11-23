@@ -1,0 +1,2 @@
+/home/mike/Documents/MastersWork/CuraEngine/CMakeFiles/CuraEngine.dir
+/home/mike/Documents/MastersWork/CuraEngine/CMakeFiles/clipper.dir
