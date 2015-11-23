@@ -12,4 +12,6 @@
 hs_err_pid*
 
 protobuf/
+.idea/
+target/
 
