@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="WebSlicerServer:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="webslicer-server.war">
+      <element id="artifact" artifact-name="WebSlicerServer:war exploded" />
+    </root>
+  </artifact>
+</component>
