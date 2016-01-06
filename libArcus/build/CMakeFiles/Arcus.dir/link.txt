@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC -std=c++11   -shared -Wl,-soname,libArcus.so.1 -o libArcus.so.15.09.81 CMakeFiles/Arcus.dir/src/Socket.cpp.o CMakeFiles/Arcus.dir/src/SocketListener.cpp.o /usr/local/lib/libprotobuf.so -Wl,-rpath,/usr/local/lib: 

@@ -1,2 +1,0 @@
-/home/mike/Documents/MastersWork/libArcus/build/CMakeFiles/Arcus.dir
-/home/mike/Documents/MastersWork/libArcus/build/examples/CMakeFiles/example.dir
