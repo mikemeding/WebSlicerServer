@@ -42,6 +42,7 @@ public class CuraEngineTest {
 	public void testFluidity() {
 
 		try {
+			//TODO: this argument list needs to match the one in build_env/build_tests/test.sh
 			CuraEngine ce = new CuraEngine();
 			ce.options()
 					.verbose()
