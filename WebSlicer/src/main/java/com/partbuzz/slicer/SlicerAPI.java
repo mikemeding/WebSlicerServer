@@ -18,6 +18,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -98,7 +100,6 @@ public class SlicerAPI {
         // parse input JSON stream
         JSONObject jo = parseJSONStream(req);
 
-
         //TODO: parse correct settings from json object.
         /**
          * SAMPLE JSON SETTINGS FILE
@@ -138,10 +139,9 @@ public class SlicerAPI {
          }
          */
 
-        String username = jo.getString("username");
-        String password = jo.getString("password");
-
-        return Response.ok().build();
+        log.log(Level.INFO, "importSettings: " + jo.toString());
+        //TODO: UUID needs to be tracked for each file.
+        return Response.ok().entity(UUID.randomUUID()).build(); // return a random uuid
     }
 
     /**
