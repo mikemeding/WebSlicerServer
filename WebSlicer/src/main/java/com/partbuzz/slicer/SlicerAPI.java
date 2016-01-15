@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 public class SlicerAPI {
     private static final Logger log = Logger.getLogger(SlicerAPI.class.getName());
     private final DefaultJSONFactory JSONFactory = DefaultJSONFactory.getInstance();
+    private FileTracker fileTracker = new FileTracker();
 
     /**
      * Simply returns 200 OK if called.
@@ -97,51 +98,35 @@ public class SlicerAPI {
     @POST
     @Path("importSettings")
     public Response importSettings(@Context HttpServletRequest req) {
-        // parse input JSON stream
-        JSONObject jo = parseJSONStream(req);
+        log.log(Level.INFO, "importing settings ");
+        StringBuilder sb = new StringBuilder();
+        try {
+            String line;
 
-        //TODO: parse correct settings from json object.
-        /**
-         * SAMPLE JSON SETTINGS FILE
-         *
-         { "id": "prusa_i3", "version": 1,
-         "name": "Prusa i3",
-         "manufacturer": "Other",
-         "author": "Other",
-         "icon": "icon_ultimaker2.png",
-         "platform": "prusai3_platform.stl",
+            // parse input stream into a string
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(req.getInputStream()))) {
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+            String data = sb.toString(); // finish parse
 
-         "inherits": "fdmprinter.json",
+            // Save the file
+            String tmpDir = System.getProperty("java.io.tmpdir", "/tmp");
+            String fileName = fileTracker.getSettingsFileName();
+            String fullPath = tmpDir + "/" + fileName;
+            PrintWriter out = new PrintWriter(fullPath);
+            out.print(data); // print our entire json string to file
+            out.close();
 
-         "overrides": {
-         "machine_heated_bed": { "default": true },
-         "machine_width": { "default": 200 },
-         "machine_height": { "default": 200 },
-         "machine_depth": { "default": 200 },
-         "machine_center_is_zero": { "default": false },
-         "machine_nozzle_size": { "default": 0.4 },
-         "machine_nozzle_heat_up_speed": { "default": 2.0 },
-         "machine_nozzle_cool_down_speed": { "default": 2.0 },
-         "machine_head_shape_min_x": { "default": 75 },
-         "machine_head_shape_min_y": { "default": 18 },
-         "machine_head_shape_max_x": { "default": 18 },
-         "machine_head_shape_max_y": { "default": 35 },
-         "machine_nozzle_gantry_distance": { "default": 55 },
-         "machine_gcode_flavor": { "default": "RepRap (Marlin/Sprinter)" },
+            // register our new file with our registry
+            String fileId = fileTracker.registerSettingsFile(fileName);
 
-         "machine_start_gcode": {
-         "default": "G21 ;metric values\nG90 ;absolute positioning\nM82 ;set extruder to absolute mode\nM107 ;start with the fan off\nG28 X0 Y0 ;move X/Y to min endstops\nG28 Z0 ;move Z to min endstops\nG1 Z15.0 F9000 ;move the platform down 15mm\nG92 E0 ;zero the extruded length\nG1 F200 E3 ;extrude 3mm of feed stock\nG92 E0 ;zero the extruded length again\nG1 F9000\n;Put printing message on LCD screen\nM117 Printing..."
-         },
-         "machine_end_gcode": {
-         "default": "M104 S0 ;extruder heater off\nM140 S0 ;heated bed heater off (if you have it)\nG91 ;relative positioning\nG1 E-1 F300  ;retract the filament a bit before lifting the nozzle, to release some of the pressure\nG1 Z+0.5 E-5 X-20 Y-20 F9000 ;move Z up a bit and retract filament even more\nG28 X0 Y0 ;move X/Y to min endstops, so the head is out of the way\nM84 ;steppers off\nG90 ;absolute positioning"
-         }
-         }
-         }
-         */
-
-        log.log(Level.INFO, "importSettings: " + jo.toString());
-        //TODO: UUID needs to be tracked for each file.
-        return Response.ok().entity(UUID.randomUUID()).build(); // return a random uuid
+            return Response.ok().entity(fileId).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.serverError().entity("File write error").build();
+        }
     }
 
     /**
@@ -187,10 +172,7 @@ public class SlicerAPI {
 
             log.info(data);
 
-            // parse string to json object
-            JSONObject jo = JSONFactory.jsonObject(data);
-
-            return jo;
+            return JSONFactory.jsonObject(data);
 
         } catch (IOException | JSONException e) {
             log.severe(e.getMessage());
@@ -198,6 +180,5 @@ public class SlicerAPI {
         }
 
     }
-
 
 }
