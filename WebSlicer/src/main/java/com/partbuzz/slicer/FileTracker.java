@@ -13,11 +13,8 @@ import java.util.UUID;
  * Created by mike on 1/14/16.
  */
 public class FileTracker {
-    private Map<String, String> modelFileMap = new HashMap<>();
-    private Map<String, String> settingsFileMap = new HashMap<>();
-
-    public FileTracker() {
-    }
+    private static Map<String, String> modelFileMap = new HashMap<>();
+    private static Map<String, String> settingsFileMap = new HashMap<>();
 
     /**
      * Get the settings file id associated with a particular client id.
@@ -25,7 +22,7 @@ public class FileTracker {
      * @param id
      * @return
      */
-    public String getSettingFileByClientId(String id) {
+    public static String getSettingFileNameById(String id) {
         return settingsFileMap.get(id);
     }
 
@@ -35,12 +32,12 @@ public class FileTracker {
      * @param id
      * @return
      */
-    public String getModelFileByClientId(String id) {
+    public static String getModelFileNameById(String id) {
         return modelFileMap.get(id);
     }
 
-
-    public void removeClient(String id) {
+    //TODO: this should communicate with file handler to actually remove the files
+    public static void removeFile(String id) {
         settingsFileMap.remove(id);
         modelFileMap.remove(id);
     }
@@ -50,11 +47,11 @@ public class FileTracker {
      *
      * @return
      */
-    public String getSettingsFileName() {
+    public static String generateSettingsFileName() {
         return UUID.randomUUID().toString() + "-settings.json";
     }
 
-    public String getModelFileName() {
+    public static String generateModelFileName() {
         return UUID.randomUUID().toString() + "-model.stl";
     }
 
@@ -64,7 +61,7 @@ public class FileTracker {
      * @param fileName
      * @return
      */
-    public String registerSettingsFile(String fileName) {
+    public static String registerSettingsFile(String fileName) {
         String uuid = UUID.randomUUID().toString();
         settingsFileMap.put(uuid, fileName);
         return uuid;
@@ -76,7 +73,7 @@ public class FileTracker {
      * @param fileName
      * @return
      */
-    public String registerModelfile(String fileName) {
+    public static String registerModelfile(String fileName) {
         String uuid = UUID.randomUUID().toString();
         modelFileMap.put(uuid, fileName);
         return uuid;
