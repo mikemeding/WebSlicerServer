@@ -13,6 +13,7 @@ import java.util.UUID;
  * Created by mike on 1/14/16.
  */
 public class FileTracker {
+    public static String basePath = "/tmp/webslicer/";
     private static Map<String, String> modelFileMap = new HashMap<>();
     private static Map<String, String> settingsFileMap = new HashMap<>();
 
