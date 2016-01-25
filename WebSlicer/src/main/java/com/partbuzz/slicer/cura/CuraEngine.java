@@ -1,7 +1,10 @@
 /*
  * Copyright (c) 2016 Michael Meding -- All Rights Reserved.
  */
-package com.partbuzz.slicer;
+package com.partbuzz.slicer.cura;
+
+import com.partbuzz.slicer.util.CuraEngineException;
+import com.partbuzz.slicer.util.PlatformExecutable;
 
 import java.io.IOException;
 import java.io.InputStream;

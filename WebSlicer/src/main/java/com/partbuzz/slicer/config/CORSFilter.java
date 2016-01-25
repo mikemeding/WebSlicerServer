@@ -1,4 +1,4 @@
-package com.partbuzz.slicer;
+package com.partbuzz.slicer.config;
 
 import java.io.IOException;
 

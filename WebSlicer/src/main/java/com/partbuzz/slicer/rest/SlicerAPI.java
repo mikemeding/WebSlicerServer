@@ -1,5 +1,8 @@
-package com.partbuzz.slicer;
+package com.partbuzz.slicer.rest;
 
+import com.partbuzz.slicer.cura.CuraEngine;
+import com.partbuzz.slicer.util.CuraEngineException;
+import com.partbuzz.slicer.util.FileTracker;
 import os.io.FileHelper;
 import os.util.ExceptionHelper;
 import os.util.StringUtils;
@@ -11,14 +14,12 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,14 +48,38 @@ public class SlicerAPI {
     }
 
     /**
+     * Add a new client to our database and file structure.
+     * This will set aside all of the files needed for a new client and link them correctly
+     *
+     * @param req
+     * @return The new uuid for that client so that we may track files
+     */
+    @POST
+    @Path("setupClient")
+    public Response setupClient(@Context HttpServletRequest req) {
+        try {
+            String uuid = FileTracker.setupNewClient();
+            JSONObject payload = new JSONObject();
+            payload.put("clientId", uuid);
+
+            return Response.ok().entity(payload).build();
+        } catch (CuraEngineException e) {
+            e.printStackTrace();
+            return Response.serverError().build();
+        }
+    }
+
+
+    /**
      * Import an STL model file from the client
      *
      * @param req is the http request
      * @return the names of the uploaded files or an error message
      */
     @POST
-    @Path("importStl")
-    public Response importStl(@Context HttpServletRequest req) {
+    @Path("importStl/{clientId}")
+    public Response importStl(@Context HttpServletRequest req,
+                              @PathParam("clientId") String clientId) {
         try {
 
             ByteArrayDataSource bads = new ByteArrayDataSource(req.getInputStream(), req.getContentType());
@@ -69,11 +94,12 @@ public class SlicerAPI {
                 mbp.getInputStream().read(buffer);
 
                 // calculate a filename
-                String md5Hex = StringUtils.encodeHexString(StringUtils.md5(buffer));
-                filename = StringUtils.encode(md5Hex + "-" + mbp.getFileName());
+//                String md5Hex = StringUtils.encodeHexString(StringUtils.md5(buffer));
+//                filename = StringUtils.encode(md5Hex + "-" + mbp.getFileName());
+                filename = StringUtils.encode(mbp.getFileName());
 
-                // Save the file
-                File file = new File(FileTracker.basePath, filename);
+                // Save the file to disk
+                File file = new File(FileTracker.getModelPathById(clientId) + FileTracker.delimiter + filename);
                 FileOutputStream fp = new FileOutputStream(file);
                 fp.write(buffer);
                 fp.close();
@@ -81,7 +107,7 @@ public class SlicerAPI {
             }
 
             // register our new model file
-            String fileId = FileTracker.registerModelfile(filename);
+            String fileId = FileTracker.registerModelFile(clientId, filename);
 
             // build response message
             JSONObject response = new JSONObject();
@@ -100,8 +126,9 @@ public class SlicerAPI {
      * @return the names of the uploaded files or an error message
      */
     @POST
-    @Path("importSettings")
-    public Response importSettings(@Context HttpServletRequest req) {
+    @Path("importSettings/{clientId}")
+    public Response importSettings(@Context HttpServletRequest req,
+                                   @PathParam("clientId") String clientId) {
         log.log(Level.INFO, "importing settings ");
         StringBuilder sb = new StringBuilder();
         try {
@@ -116,22 +143,14 @@ public class SlicerAPI {
             String data = sb.toString(); // finish parse
 
             // Save to file
-            String fileName = FileTracker.generateSettingsFileName();
-            String fullPath = FileTracker.basePath + "/" + fileName;
+            String settingsPath = FileTracker.getSettingsFullPath(clientId);
 
-            // write to a file
-            try (PrintWriter out = new PrintWriter(fullPath)) {
+            // write/overwrite file
+            try (PrintWriter out = new PrintWriter(settingsPath)) {
                 out.print(data);
             }
 
-            // register our new file with our registry
-            String fileId = FileTracker.registerSettingsFile(fileName);
-
-            // build response message
-            JSONObject response = new JSONObject();
-            response.put("fileId", fileId);
-
-            return Response.ok().entity(response.toString()).build();
+            return Response.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
             return Response.serverError().entity("File write error").build();
@@ -152,21 +171,11 @@ public class SlicerAPI {
      * @return the names of the uploaded files or an error message
      */
     @POST
-    @Path("slice")
-    public Response slice(@Context HttpServletRequest req) {
-        // parse input JSON stream
-        JSONObject jo = parseJSONStream(req);
-
-        // pull out our needed fields
-        String modelId = jo.getString("modelId");
-        String settingsId = jo.getString("settingsId");
-
-        if (modelId == null || settingsId == null) { // inproperly formatted data
-            return Response.serverError().entity("Model or Settings file id not found").build();
-        }
-
+    @Path("slice/{clientId}/{modelId}")
+    public Response slice(@Context HttpServletRequest req,
+                          @PathParam("clientId") String clientId, @PathParam("modelId") String modelId) {
         try {
-            // SAMPLE COMMAND
+            // SAMPLE COMMAND RESULT
             // ../../CuraEngine-master/build/CuraEngine slice -v -j ultimaker2.json -g -e -o "output/test.gcode" -l ../../models/ControlPanel.stl
 
             // create new CuraEngine platform executable
@@ -176,15 +185,14 @@ public class SlicerAPI {
                     .currentGroupOnly()
                     .extruderTrainOption()
                     .logProgress()
-                    .settingsFilename(FileTracker.basePath + FileTracker.getSettingFileNameById(settingsId))
-                    .outputFilename(FileTracker.basePath + "output.gcode")
-                    .modelFilename(FileTracker.basePath + FileTracker.getModelFileNameById(modelId));
-
+                    .settingsFilename(FileTracker.getSettingsFullPath(clientId))
+                    .outputFilename(FileTracker.getOutputFilePath(clientId))
+                    .modelFilename(FileTracker.getModelFullPath(clientId, modelId));
             ce.execute();
 
             // build response from output file and return it.
             JSONObject response = new JSONObject();
-            byte[] raw = FileHelper.readContent(new File(FileTracker.basePath + "output.gcode"));
+            byte[] raw = FileHelper.readContent(new File(FileTracker.getOutputFilePath(clientId)));
             String gcode = new String(raw);
             response.put("gcode", gcode);
 
@@ -192,6 +200,22 @@ public class SlicerAPI {
         } catch (IOException e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
+    }
+
+    /**
+     * Get all of the model file names and tracking ids associated with a client uuid.
+     *
+     * @param req
+     * @param clientId
+     * @return
+     */
+    @GET
+    @Path("getFiles/{clientId}")
+    @Produces("application/json")
+    public Response getFiles(@Context HttpServletRequest req,
+                             @PathParam("clientId") String clientId) {
+        HashMap filesMap = FileTracker.getAllModelFiles(clientId);
+        return Response.ok().entity(filesMap).build();
     }
 
     /**

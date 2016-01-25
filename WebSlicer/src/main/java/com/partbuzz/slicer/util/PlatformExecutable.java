@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 Michael Meding -- All Right Reserved.
  */
-package com.partbuzz.slicer;
+package com.partbuzz.slicer.util;
 
 import java.io.Closeable;
 import java.io.File;

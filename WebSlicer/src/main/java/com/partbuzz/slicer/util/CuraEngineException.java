@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2016 Michael Meding -- All Rights Reserved.
  */
-package com.partbuzz.slicer;
+package com.partbuzz.slicer.util;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.partbuzz.slicer;
+package com.partbuzz.slicer.config;
 
 
 import javax.ws.rs.ApplicationPath;
