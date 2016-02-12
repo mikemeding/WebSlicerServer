@@ -10,7 +10,6 @@
 
     "inherits": "fdmprinter.json",
 
-"print_temperature":{ "default":245},
     
     "machine_extruder_trains": {
         "0": {
@@ -82,8 +81,8 @@
         "machine_nozzle_head_distance": { "default": 3.0 },
         "machine_nozzle_expansion_angle": { "default": 45 },
         
-        "material_print_temperature": { "enabled": "True" },
-        "material_bed_temperature": { "enabled": "True" },
+        "material_print_temperature": { "enabled": "False" },
+        "material_bed_temperature": { "enabled": "False" },
         "material_diameter": { "enabled": "False" },
         "material_flow": { "enabled": "False" }
     }

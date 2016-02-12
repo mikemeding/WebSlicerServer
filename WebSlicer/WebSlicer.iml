@@ -16,10 +16,8 @@
       <configuration>
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="" />
-        <datasource-mapping>
-          <factory-entry name="primary" />
-        </datasource-mapping>
-        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/main/resources/META-INF/persistence.xml" />
+        <datasource-mapping />
+        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/src/test/resources/META-INF/test-persistence.xml" />
       </configuration>
     </facet>
   </component>
@@ -77,6 +75,5 @@
     <orderEntry type="library" name="Maven: com.sun.mail:javax.mail:1.5.1" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: os.util:osutils:1.0" level="project" />
-    <orderEntry type="library" name="Maven: javax.mail:javax.mail-api:1.5.4" level="project" />
   </component>
 </module>
