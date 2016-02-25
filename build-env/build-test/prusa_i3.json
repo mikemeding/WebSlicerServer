@@ -9,7 +9,8 @@
 
     "overrides": {
 
-        "infill_sparse_density":{"default":80.0},
+	"infill_sparse_density": { "default": 100.0 },
+	"infill_line_distance": {"default":0.6},
         "machine_heated_bed": { "default": true },
         "machine_width": { "default": 200 },
         "machine_height": { "default": 200 },
@@ -26,7 +27,8 @@
         "machine_gcode_flavor": { "default": "RepRap (Marlin/Sprinter)" },
 
 
-        "material_print_temperature": { "enabled": "True","default":245 },
+        "material_print_temperature": { "enabled": "true","default":245 },
+        "material_bed_temperature": { "enabled": "true","default":110 },
 
 
         "machine_start_gcode": {
