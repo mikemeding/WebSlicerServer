@@ -203,6 +203,40 @@ public class SlicerAPI {
     }
 
     /**
+     * This function is to run a full test slice with a sample model and return its gcode.
+     * Eliminates the need for a UI to run backend tests.
+     * @param req is the http request
+     * @return the names of the uploaded files or an error message
+     */
+    @POST
+    @Path("testSlice")
+    public Response testSlice(@Context HttpServletRequest req) {
+        try {
+            // create new CuraEngine platform executable
+            CuraEngine ce = new CuraEngine();
+            ce.options() // add options. order is irrelevant.
+                    .verbose()
+                    .currentGroupOnly()
+                    .extruderTrainOption()
+                    .logProgress()
+                    .settingsFilename("/tmp/webslicer/test/prusa_i3.json")
+                    .outputFilename("/tmp/webslicer/test/output.gcode")
+                    .modelFilename("/tmp/webslicer/test/testModel.stl");
+            ce.execute();
+
+            // build response from output file and return it.
+            JSONObject response = new JSONObject();
+            byte[] raw = FileHelper.readContent(new File("/tmp/webslicer/test/output.gcode"));
+            String gcode = new String(raw);
+            response.put("gcode", gcode);
+
+            return Response.ok().entity(response.toString()).build();
+        } catch (IOException e) {
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+    }
+
+    /**
      * Get all of the model file names and tracking ids associated with a client uuid.
      *
      * @param req
