@@ -33,20 +33,27 @@ class StreamDrainer implements Runnable {
     public void run() {
 
         // tell the invoker that we are draining
+        log.info("starting drainer thread");
         synchronized (this) {
+            log.info("drainer thread  sync");
+
+            started = true;
+            notifyAll();
 
             byte[] buffer = new byte[512];
             try {
-                while (fp.available() > 0) {
-                    log.info("thread available!");
-                    started = true;
-                    notifyAll();
-                    int n = fp.read(buffer);
-                    sb.append(new String(buffer, 0, n));
-                }
+                boolean reading = true;
+                int n;
+                do {
+                    n = fp.read(buffer);
+                    if (n > 0) {
+                        sb.append(new String(buffer, 0, n));
+                    }
+                } while (n >= 0);
             } catch (IOException ex) {
                 Logger.getLogger("PlatformExecutor").log(Level.SEVERE, null, ex);
             }
+            log.info("done with the drainer");
         }
     }
 }

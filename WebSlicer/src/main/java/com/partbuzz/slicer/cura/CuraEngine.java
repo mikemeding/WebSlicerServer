@@ -45,19 +45,26 @@ public class CuraEngine extends PlatformExecutable {
      */
     protected static StreamDrainer setupStreamDrain(InputStream fp) throws IOException {
         final StreamDrainer drainer = new StreamDrainer(fp);
-        new Thread(drainer).start();
-
         // wait until we are draining
         synchronized (drainer) {
+
+            log.info("starting thread");
+            Thread t = new Thread(drainer);
+            t.setDaemon(true);
+            t.start();
+
             while (!drainer.hasStarted()) {
                 try {
+                    log.info("waiting for drainer thread");
                     drainer.wait(500);
-                    log.info("500ms wait");
+                    log.info("drainer wait expired");
                 } catch (InterruptedException ex) {
                     Thread.interrupted();
                     throw new IOException("Unable to setup stream drainer");
                 }
             }
+
+            log.info("drainer started");
         }
 
         return drainer;
@@ -107,6 +114,7 @@ public class CuraEngine extends PlatformExecutable {
                 }
                 output = sb.toString();
                 log.info(output); // just log the output for now
+                log.info("STDOUT:" + stdout.getText());
                 return;
             } else {
                 throw new CuraEngineException("unable to parse gcode file");
