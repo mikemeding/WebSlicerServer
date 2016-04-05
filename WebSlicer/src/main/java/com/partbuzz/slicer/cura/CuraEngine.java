@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class CuraEngine extends PlatformExecutable {
 
     private static final Logger log = Logger.getLogger(CuraEngine.class.getName());
-    private static final String CURAENGINE_PROG = "/home/mike/Documents/WebSlicerServer/CuraEngine-master/build/CuraEngine"; //TODO: relative path???
+    private static final String CURAENGINE_PROG = "CuraEngine";
     private final CuraEngineOptions options;
 
     public CuraEngine() {
